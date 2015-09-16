@@ -11,6 +11,9 @@ function gotSources(sourceInfos) {
   for (var i = 0; i !== sourceInfos.length; ++i) {
     var sourceInfo = sourceInfos[i];
     var option = document.createElement('option');
+	alert(audioSelect,"audio");
+    alert(videoSelect,"bedio");
+	alert(sourceInfo.id);
     option.value = sourceInfo.id;
     if (sourceInfo.kind === 'audio') {
       option.text = sourceInfo.label || 'microphone ' +
@@ -49,7 +52,6 @@ function start() {
   }
   var audioSource = audioSelect.value;
   var videoSource = videoSelect.value;
-  alert(videoSource);
   var constraints = {
     audio: {
       optional: [{

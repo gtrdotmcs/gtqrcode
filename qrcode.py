@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return render_template("mobcam.html")
+    return render_template("WebQR.html")
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", 
