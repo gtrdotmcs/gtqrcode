@@ -9,11 +9,10 @@ var gUM=false;
 var webkit=false;
 var moz=false;
 var v=null;
-
-var audioSelect = null;//document.querySelector('#mainbody.select#audioSource');
-var videoSelect = null;//document.querySelector('#mainbody.select#videoSource');
-
-
+var audioSelect = null;
+var videoSelect = null;
+var audioSource = null;
+var videoSource = null;
 
 var imghtml='<div id="qrfile"><canvas id="out-canvas" width="320" height="240"></canvas>'+
     '<div id="imghelp">drag and drop a QRCode here'+
@@ -68,24 +67,6 @@ function handleFiles(f)
     }
 }
 
-function gotSources(sourceInfos) {
-  for (var i = 0; i !== sourceInfos.length; ++i) {
-    var sourceInfo = sourceInfos[i];
-    var option = document.createElement('option');
-    option.value = sourceInfo.id;
-    if (sourceInfo.kind === 'audio') {
-      option.text = sourceInfo.label || 'microphone ' + (audioSelect.length + 1);
-      audioSelect.appendChild(option);
-    } else if (sourceInfo.kind === 'video') {
-      option.text = sourceInfo.label || 'camera ' + (videoSelect.length + 1);	
-      videoSelect.appendChild(option);
-    } else {
-      console.log('Some other kind of source: ', sourceInfo);
-    }
-  }
-}
-
-
 function initCanvas(w,h)
 {
     gCanvas = document.getElementById("qr-canvas");
@@ -137,18 +118,21 @@ function isCanvasSupported(){
   var elem = document.createElement('canvas');
   return !!(elem.getContext && elem.getContext('2d'));
 }
-
- function success(stream) {
-    if(webkit)
-        v.src = window.webkitURL.createObjectURL(stream);
-    else
+function success(stream) {
+    //if(webkit)
+        //v.src = window.webkitURL.createObjectURL(stream);
+/*     else
     if(moz)
     {
         v.mozSrcObject = stream;
         v.play();
     }
     else
-        v.src = stream;
+        v.src = stream; */
+    window.stream = stream; // make stream available to console
+	alert(stream);
+    v.src = window.URL.createObjectURL(stream);
+    v.play();
     gUM=true;
     setTimeout(captureToCanvas, 500);
 }
@@ -158,6 +142,21 @@ function error(error) {
     return;
 }
 
+function gotSources(sourceInfos) {
+  for (var i = 0; i !== sourceInfos.length; ++i) {
+    var sourceInfo = sourceInfos[i];
+    var option = document.createElement('option');
+    option.value = sourceInfo.id;
+    if (sourceInfo.kind === 'video') {
+      option.text = sourceInfo.label || 'camera ' + (videoSelect.length + 1);
+      videoSelect.appendChild(option);
+    } else {
+      console.log('Some other kind of source: ', sourceInfo);
+    }
+  }
+}
+
+
 function load()
 {
 	if(isCanvasSupported() && window.File && window.FileReader)
@@ -165,17 +164,14 @@ function load()
 		initCanvas(800, 600);
 		qrcode.callback = read;
 		document.getElementById("mainbody").style.display="inline";
-        setwebcam();
-/* 		if (typeof MediaStreamTrack === 'undefined' || typeof MediaStreamTrack.getSources === 'undefined') {
+		if (typeof MediaStreamTrack === 'undefined' || typeof MediaStreamTrack.getSources === 'undefined') {
 		  alert('This browser does not support MediaStreamTrack.\n\nTry Chrome.');
 		} else {
-		  audioSelect = document.querySelector('select#audioSource');
           videoSelect = document.querySelector('select#videoSource');	
-		  alert("letsee");		
-		  MediaStreamTrack.getSources(gotSources);
-		  audioSelect.onchange = setwebcam;
           videoSelect.onchange = setwebcam;
-		} */
+		  MediaStreamTrack.getSources(gotSources);
+		}
+		setwebcam();
 	}
 	else
 	{
@@ -186,38 +182,39 @@ function load()
 	}
 }
 
-
-
-function setwebcam()
-{
+function setwebcam(){
 	document.getElementById("result").innerHTML="- scanning -";
     if(stype==1)
     {
+		videoSource = videoSelect.value;
+		alert(videoSource);
+		if (!!window.stream) {
+			v=document.getElementById("v");
+			v.src = null;
+			window.stream.stop();
+		  }
+		var constraints = {
+		audio: false,
+		video: {
+		  optional: [{
+			sourceId: videoSource
+		  }]
+		}
+	   }; 
+		navigator.getUserMedia = navigator.getUserMedia ||  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+		navigator.getUserMedia(constraints, success, error);
         setTimeout(captureToCanvas, 500);    
         return;
     }
     var n=navigator;
     document.getElementById("outdiv").innerHTML = vidhtml;
     v=document.getElementById("v");
-	alert(v);
-/*  	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-	var audioSource = audioSelect.value;
-    var videoSource = videoSelect.value;
-    //alert(videoSource);
-    var constraints = {
-	audio: {
-	  optional: [{
-		sourceId: audioSource
-	  }]
-	 },
-	video: {
-	  optional: [{
-		sourceId: videoSource
-	  }]
-	 }
-    }; */
-	
-	navigator.getUserMedia(constraints, success, error); 
+    n.getUserMedia = n.getUserMedia ||  n.webkitGetUserMedia || n.mozGetUserMedia;
+	alert("hello");
+	n.getUserMedia({video: true, audio: false}, success, error);
+/* 	alert(n.getUserMedia);
+	alert(n.webkitGetUserMedia);
+	alert(n.mozGetUserMedia);
     if(n.getUserMedia)
         n.getUserMedia({video: true, audio: false}, success, error);
     else
@@ -231,7 +228,7 @@ function setwebcam()
     {
         moz=true;
         n.mozGetUserMedia({video: true, audio: false}, success, error);
-    }
+    } */
 
     //document.getElementById("qrimg").src="qrimg2.png";
     //document.getElementById("webcamimg").src="webcam.png";
@@ -241,7 +238,6 @@ function setwebcam()
     stype=1;
     setTimeout(captureToCanvas, 500);
 }
-
 function setimg()
 {
 	document.getElementById("result").innerHTML="";
