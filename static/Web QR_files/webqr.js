@@ -187,8 +187,6 @@ function load()
 
 function setwebcam(){
 	document.getElementById("result").innerHTML="- scanning -";
-    if(stype==1)
-    {
 		videoSource = videoSelect.value;
 		alert(videoSource);
 		if (!!window.stream) {
@@ -206,15 +204,15 @@ function setwebcam(){
 	   }; 
 		navigator.getUserMedia = navigator.getUserMedia ||  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 		navigator.getUserMedia(constraints, success, error);
-        setTimeout(captureToCanvas, 500);    
-        return;
-    }
-    var n=navigator;
+		document.getElementById("qrimg").style.opacity=0.2;
+        document.getElementById("webcamimg").style.opacity=1.0;
+        //setTimeout(captureToCanvas, 500);
+/*     var n=navigator;
     document.getElementById("outdiv").innerHTML = vidhtml;
     v=document.getElementById("v");
     n.getUserMedia = n.getUserMedia ||  n.webkitGetUserMedia || n.mozGetUserMedia;
 	alert("hello");
-	n.getUserMedia({video: true, audio: false}, success, error);
+	n.getUserMedia({video: true, audio: false}, success, error); */
 /* 	alert(n.getUserMedia);
 	alert(n.webkitGetUserMedia);
 	alert(n.mozGetUserMedia);
@@ -235,8 +233,8 @@ function setwebcam(){
 
     //document.getElementById("qrimg").src="qrimg2.png";
     //document.getElementById("webcamimg").src="webcam.png";
-    document.getElementById("qrimg").style.opacity=0.2;
-    document.getElementById("webcamimg").style.opacity=1.0;
+    //document.getElementById("qrimg").style.opacity=0.2;
+    //document.getElementById("webcamimg").style.opacity=1.0;
 
     stype=1;
     setTimeout(captureToCanvas, 500);
