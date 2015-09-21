@@ -88,6 +88,7 @@ function captureToCanvas() {
             gCtx.drawImage(v,0,0);
             try{
                 qrcode.decode();
+				
             }
             catch(e){       
                 console.log(e);
@@ -96,6 +97,7 @@ function captureToCanvas() {
         }
         catch(e){       
                 console.log(e);
+			    alert("hmmm");
                 setTimeout(captureToCanvas, 500);
         };
     }
@@ -111,6 +113,7 @@ function read(a)
     if(a.indexOf("http://") === 0 || a.indexOf("https://") === 0)
         html+="<a target='_blank' href='"+a+"'>"+a+"</a><br>";
     html+="<b>"+htmlEntities(a)+"</b><br><br>";
+	alert(htmlEntities(a));
     document.getElementById("result").innerHTML=html;
 }	
 
@@ -252,5 +255,6 @@ function setimg()
     qrfile.addEventListener("dragenter", dragenter, false);  
     qrfile.addEventListener("dragover", dragover, false);  
     qrfile.addEventListener("drop", drop, false);
+	alert("hmmm");
     stype=2;
 }
